@@ -65,7 +65,7 @@ function loadCSS(){
     var head = document.getElementsByTagName("head")[0];
     var fileref = document.createElement("style");
     fileref.setAttribute("type", "text/css");
-    fileref.innerHTML = '.compareWrapper { position:absolute;top:0;left:10%; background-color: rgba(100,100,100,0.5);z-index:1000;}' +
+    fileref.innerHTML = '.compareWrapper { position:absolute;top:0;left:0; background-color: rgba(100,100,100,0.5);z-index:1000;}' +
                         '.result table { border: 1px solid; border-spacing: 0px;}'
                         ;
     head.appendChild(fileref);
@@ -82,8 +82,38 @@ function showPanel(){
                     ;
     div.className = 'compareWrapper';
     div = document.body.appendChild(div);
+    
+    //Drag and drop
     div.setAttribute('draggable',true);
-    //div.setAttribute('ondragstart','return dragStart(event)');
+    var mouse0x,mouse0y,div0x,div0y,finalx,finaly;
+    div.addEventListener('dragstart',function(ev){
+        div0x = this.offsetLeft;
+        div0y = this.offsetTop;
+        mouse0x = ev.screenX;
+        mouse0y = ev.screenY;
+        console.info('start',ev.screenX,ev.screenY);
+    });
+
+    div.addEventListener('drag',function(ev){
+        //console.info('dragging',ev.screenX,ev.screenY);
+        this.style.top = div0y + ev.screenY - mouse0y + 'px';  
+        this.style.left = div0x + ev.screenX - mouse0x + 'px';  
+        if(ev.screenX){
+            finalx = div0x+ev.screenX - mouse0x;
+        }
+        if(ev.screenY){
+            finaly = div0y+ev.screenY - mouse0y;
+        }
+    });
+    div.addEventListener('dragend',function(ev){
+        console.info('end',ev.screenX,ev.screenY);
+        this.style.top = finaly + 'px';
+        this.style.left = finalx + 'px';
+    });
+    document.body.addEventListener('dragover',function(event){
+        event.preventDefault();
+    });
+
     var compareBtn = div.querySelector('#comparecss-compare');
     var clearBtn = div.querySelector('#comparecss-clear');
     var input1 = div.querySelector('#comparecss-elm1');
@@ -169,7 +199,9 @@ function showPanel(){
     })
 }
 
+function onloadBody(){
 loadCSS();
 showPanel();
+}
 
 //create function to let user select two elements
